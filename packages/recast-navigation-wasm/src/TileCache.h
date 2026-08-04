@@ -120,13 +120,13 @@ struct TileCacheMeshProcessWrapper : public dtTileCacheMeshProcess
 
     virtual void process(struct dtNavMeshCreateParams *params, unsigned char *polyAreas, unsigned short *polyFlags)
     {
-        UnsignedCharArray *polyAreasView = new UnsignedCharArray();
-        polyAreasView->view(polyAreas);
+        UnsignedCharArray polyAreasView;
+        polyAreasView.view(polyAreas);
 
-        UnsignedShortArray *polyFlagsView = new UnsignedShortArray();
-        polyFlagsView->view(polyFlags);
+        UnsignedShortArray polyFlagsView;
+        polyFlagsView.view(polyFlags);
 
-        js.process(params, polyAreasView, polyFlagsView);
+        js.process(params, &polyAreasView, &polyFlagsView);
     }
 };
 
@@ -161,6 +161,8 @@ public:
     bool init(const dtTileCacheParams *params, RecastLinearAllocator *allocator, RecastFastLZCompressor *compressor, TileCacheMeshProcessJsImpl &meshProcess);
 
     TileCacheAddTileResult addTile(UnsignedCharArray *data, unsigned char flags);
+
+    TileCacheAddTileResult addTileCopy(const UnsignedCharArray *data);
 
     dtStatus buildNavMeshTile(const dtCompressedTileRef *ref, NavMesh *navMesh);
 
