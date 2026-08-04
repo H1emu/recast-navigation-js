@@ -17,6 +17,8 @@
 #include "./Vec.h"
 #include "./NavMesh.h"
 
+#include <cstddef>
+
 struct RecastFastLZCompressor : public dtTileCacheCompressor
 {
     virtual int maxCompressedSize(const int bufferSize)
@@ -83,13 +85,15 @@ struct RecastLinearAllocator : public dtTileCacheAlloc
             return 0;
         }
 
-        if (top + size > capacity)
+        constexpr size_t alignment = alignof(std::max_align_t);
+        const size_t alignedTop = (top + alignment - 1) & ~(alignment - 1);
+        if (alignedTop > capacity || size > capacity - alignedTop)
         {
             return 0;
         }
 
-        unsigned char *mem = &buffer[top];
-        top += size;
+        unsigned char *mem = &buffer[alignedTop];
+        top = alignedTop + size;
         return mem;
     }
 
