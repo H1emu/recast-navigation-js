@@ -129,6 +129,22 @@ assert.ok(
   ),
 );
 
+// Regression: CrowdUtils::getActiveAgentCount must count without asking
+// dtCrowd::getActiveAgents to write agent pointers through a null output array.
+// 512 agents crosses the old low-memory corruption threshold.
+const crowd = new core.Crowd(generated.navMesh, {
+  maxAgents: 512,
+  maxAgentRadius: 1,
+});
+const crowdAgents = [];
+for (let i = 0; i < 512; i++) {
+  crowdAgents.push(crowd.addAgent(start.nearestPoint, {}));
+}
+assert.equal(crowd.getActiveAgentCount(), 512);
+for (const agent of crowdAgents) crowd.removeAgent(agent);
+assert.equal(crowd.getActiveAgentCount(), 0);
+crowd.destroy();
+
 corridor.polys.destroy();
 straight.straightPath.destroy();
 straight.straightPathFlags.destroy();
