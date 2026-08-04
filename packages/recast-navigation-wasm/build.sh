@@ -15,8 +15,12 @@ mkdir -p ./build
 mkdir -p dist
 
 # clone recast navigation library
-[ ! -d "recastnavigation" ] && git clone https://github.com/isaac-mason/recastnavigation.git
-(cd recastnavigation && git checkout '599fd0f023181c0a484df2a18cf1d75a3553852e')
+RECASTNAVIGATION_URL=https://github.com/xsploit/recastnavigation.git
+RECASTNAVIGATION_REV=875f4a95e9ed38f515d4d228a49fa495d83c784f
+[ ! -d "recastnavigation" ] && git clone --no-checkout "$RECASTNAVIGATION_URL" recastnavigation
+(cd recastnavigation &&
+  git fetch --depth 1 "$RECASTNAVIGATION_URL" "$RECASTNAVIGATION_REV" &&
+  git checkout --detach FETCH_HEAD)
 
 # emscripten builds
 emcmake cmake -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
