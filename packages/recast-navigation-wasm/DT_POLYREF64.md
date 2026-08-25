@@ -21,18 +21,19 @@ const unsignedRef = BigInt.asUintN(64, wasmRef);
 const wasmArgument = BigInt.asIntN(64, unsignedRef);
 ```
 
-This is a raw-WASM proof, not yet a production package:
+This remains opt-in experimental work rather than a production package:
 
-- the TypeScript core wrappers still model refs as `number`;
+- the TypeScript core uses a `PolyRef` (`number | bigint`) boundary and keeps
+  the existing 32-bit `number` behavior for the default build;
 - upstream `webidl-dts-gen` cannot parse `unsigned long long[]`, so the
-  64-bit package needs a BigInt-aware declaration generator or checked-in
-  declaration surface before it can be published;
-- the server has not yet been switched to a monolithic 64-bit consumer;
-- direct `MSET` serialization has a separate version for 64-bit tile refs,
-  while compressed `TSET` data remains the intended migration input; and
-- the five known TileCache materialization failures in the current Z1 data
-  still need local geometry/region repair because wider refs do not fix bad
-  compressed layers.
+  64-bit build supplies the checked wrapper/declaration surface used by the
+  core instead of publishing the raw generated types as a normal release;
+- the H1Emu experiment consumes compressed `TSET` data to materialize a
+  complete monolithic navmesh; direct `MSET` serialization has a distinct
+  version for 64-bit tile refs; and
+- wider refs solve reference-capacity pressure, not malformed compressed
+  layers or disconnected source topology. Those failures must still be
+  repaired in the bake/extraction pipeline.
 
 Build and test both modes from an Emscripten environment:
 
